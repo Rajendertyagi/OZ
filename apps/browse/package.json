@@ -1,0 +1,6 @@
+{
+  "name": "@open-zread/browse",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Web preview server for Open Zread Wiki"
+}

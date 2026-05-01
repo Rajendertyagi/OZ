@@ -3,6 +3,25 @@ import { cp } from 'fs/promises'
 import { existsSync, readdirSync, statSync, readFileSync } from 'fs'
 import { join, resolve } from 'path'
 
+// Mock react-devtools-core (ink 的可选开发依赖，生产环境不需要)
+const reactDevToolsMock = {
+  name: 'react-devtools-mock',
+  setup(build: unknown) {
+    const b = build as {
+      onResolve: (args: { filter: RegExp }, handler: () => { path: string; namespace: string }) => void
+      onLoad: (args: { filter: RegExp; namespace: string }, handler: () => { contents: string; loader: string }) => void
+    }
+    b.onResolve({ filter: /^react-devtools-core$/ }, () => ({
+      path: 'react-devtools-core',
+      namespace: 'mock',
+    }))
+    b.onLoad({ filter: /.*/, namespace: 'mock' }, () => ({
+      contents: 'export default { connectToDevTools: () => {} }',
+      loader: 'js',
+    }))
+  },
+}
+
 function findFileRecursively(dir: string, target: string): string | null {
   try {
     const entries = readdirSync(dir)
@@ -34,6 +53,7 @@ export default defineConfig(() => {
     bundle: true,
     noExternal: [/.*/],
     platform: 'node',
+    esbuildPlugins: [reactDevToolsMock],
     define: {
       // 替换 globalThis.CLI_VERSION 为版本号常量
       'globalThis.CLI_VERSION': JSON.stringify(pkg.version),
@@ -43,7 +63,7 @@ export default defineConfig(() => {
     },
     onSuccess: async () => {
       const cwd = process.cwd()
-      const nmPath = resolve(cwd, '../node_modules')
+      const nmPath = resolve(cwd, '../../node_modules')
       const copyWasm = async (name: string) => {
         const found = findFileRecursively(nmPath, name)
         if (found && existsSync(found)) {

@@ -30,7 +30,7 @@
     "typescript-eslint": "^8.58.1"
   },
   "workspaces": [
-    "cli",
+    "apps/*",
     "packages/*"
   ]
 }
