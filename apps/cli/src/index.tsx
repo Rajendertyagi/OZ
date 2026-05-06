@@ -39,8 +39,9 @@ program
 program
   .command("browse")
   .description(t.cli.browseDesc)
-  .action(async () => {
-    await runBrowse();
+  .argument("[path]", "Project path to browse wiki", process.cwd())
+  .action(async (projectPath: string) => {
+    await runBrowse(projectPath);
   });
 
 program.parse();

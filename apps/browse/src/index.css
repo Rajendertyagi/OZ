@@ -36,25 +36,50 @@ body {
   padding: 0;
 }
 
-/* Notion 风格的工具类 */
-.notion-card {
-  background-color: var(--color-notion-white);
-  border: var(--border-whisper);
-  border-radius: 12px;
-  box-shadow: var(--shadow-card);
-  padding: 24px;
+/* Prose 样式覆盖 */
+.prose pre {
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
-.notion-button-primary {
-  background-color: var(--color-notion-blue);
-  color: var(--color-notion-white);
+.prose code::before,
+.prose code::after {
+  content: none !important;
+}
+
+/* Mermaid 图表样式 */
+.mermaid {
+  display: flex;
+  justify-content: center;
+}
+
+.mermaid svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d1d5db;
   border-radius: 4px;
-  padding: 8px 16px;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
 }
 
-.notion-button-primary:hover {
-  background-color: #005bab;
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* 选中文本样式 */
+::selection {
+  background: #bfdbfe;
+  color: inherit;
 }
