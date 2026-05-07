@@ -1,0 +1,385 @@
+/* Inter 字体 - @import 必须在最前面 */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@import "tailwindcss";
+
+/* Notion 设计系统主题 */
+@theme {
+  /* 颜色 */
+  --color-notion-black: rgba(0,0,0,0.95);
+  --color-notion-white: #ffffff;
+  --color-notion-blue: #0075de;
+  --color-warm-white: #f6f5f4;
+  --color-warm-dark: #31302e;
+  --color-warm-gray-500: #615d59;
+  --color-warm-gray-300: #a39e98;
+
+  /* 阴影 */
+  --shadow-card: rgba(0,0,0,0.04) 0px 4px 18px, rgba(0,0,0,0.027) 0px 2.025px 7.84688px, rgba(0,0,0,0.02) 0px 0.8px 2.925px, rgba(0,0,0,0.01) 0px 0.175px 1.04062px;
+  --shadow-deep: rgba(0,0,0,0.01) 0px 1px 3px, rgba(0,0,0,0.02) 0px 3px 7px, rgba(0,0,0,0.02) 0px 7px 15px, rgba(0,0,0,0.04) 0px 14px 28px, rgba(0,0,0,0.05) 0px 23px 52px;
+
+  /* 字体 */
+  --font-family-notion: 'Inter', -apple-system, system-ui, sans-serif;
+}
+
+/* CSS 变量 - Notion 设计系统 */
+:root {
+  --border-whisper: 1px solid rgba(0,0,0,0.1);
+}
+
+/* 基础样式 */
+body {
+  font-family: var(--font-family-notion);
+  color: var(--color-notion-black);
+  background-color: var(--color-notion-white);
+  margin: 0;
+  padding: 0;
+}
+
+/* Prose 样式覆盖 */
+.prose pre {
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.prose code::before,
+.prose code::after {
+  content: none !important;
+}
+
+/* TOC 样式 */
+.toc-glyph-container {
+  position: relative;
+  width: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  cursor: pointer;
+}
+
+.toc-glyph-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.toc-glyph-item {
+  list-style: none;
+  position: relative;
+  height: 2px;
+}
+
+.toc-glyph-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 2px;
+  border-radius: 9999px;
+  background: #d1d5db;
+  transition: background 0.15s ease;
+}
+
+.toc-glyph-item[data-level='2']::before {
+  width: 14px;
+  background: #31302e;
+}
+
+.toc-glyph-item[data-level='3']::before {
+  width: 11px;
+  background: #615d59;
+}
+
+.toc-glyph-item[data-level='4']::before {
+  width: 8px;
+  background: #a39e98;
+}
+
+.toc-glyph-item[data-level='5']::before,
+.toc-glyph-item[data-level='6']::before {
+  width: 5px;
+  background: #d1d5db;
+}
+
+.toc-glyph-item-active::before {
+  width: 16px;
+  height: 3px;
+  background: var(--color-notion-blue);
+  box-shadow: 0 0 6px rgba(0, 117, 222, 0.6), 0 0 12px rgba(0, 117, 222, 0.4);
+}
+
+.toc-card {
+  width: 280px;
+  max-height: 70vh;
+  overflow: hidden;
+  border: var(--border-whisper);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: var(--shadow-card);
+  color: var(--color-notion-black);
+}
+
+.toc-card[data-side='left'] {
+  transform-origin: right center;
+}
+
+.toc-card-header {
+  padding: 12px 16px 10px;
+  border-bottom: var(--border-whisper);
+}
+
+.toc-card-title {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.33;
+  letter-spacing: 0.125px;
+  color: var(--color-warm-gray-500);
+}
+
+.toc-list {
+  list-style: none;
+  margin: 0;
+  padding: 8px 0 10px;
+  max-height: calc(70vh - 48px);
+  overflow: auto;
+}
+
+.toc-item {
+  list-style: none;
+  list-style-image: none;
+  list-style-type: none;
+  position: relative;
+}
+
+.toc-item::marker {
+  content: none;
+}
+
+.toc-button {
+  display: block;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--color-notion-black);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+  text-align: left;
+  padding: 7px 16px;
+  cursor: pointer;
+}
+
+.toc-item[data-level='3'] .toc-button {
+  padding-left: 24px;
+}
+
+.toc-item[data-level='4'] .toc-button {
+  padding-left: 32px;
+}
+
+.toc-item[data-active='true'] .toc-button {
+  color: var(--color-notion-blue);
+  font-weight: 500;
+}
+
+.toc-button:hover,
+.toc-button:focus-visible {
+  color: var(--color-notion-blue);
+  outline: none;
+}
+
+.mermaid-card {
+  position: relative;
+  border: var(--border-whisper);
+  border-radius: 12px;
+  background: var(--color-warm-white);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  cursor: pointer;
+}
+
+.mermaid-card:hover,
+.mermaid-card:focus-visible {
+  box-shadow: var(--shadow-card);
+  transform: translateY(-1px);
+}
+
+.mermaid-card:focus-visible {
+  outline: 2px solid #097fe8;
+  outline-offset: 2px;
+}
+
+.mermaid-card-body {
+  padding: 24px 16px;
+}
+
+.mermaid-expand-button {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: var(--border-whisper);
+  border-radius: 9999px;
+  background: rgba(255,255,255,0.96);
+  color: var(--color-warm-gray-500);
+  opacity: 0;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  transition: opacity 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.mermaid-card:hover .mermaid-expand-button,
+.mermaid-expand-button:focus-visible {
+  opacity: 1;
+}
+
+.mermaid-expand-button:hover {
+  color: var(--color-notion-black);
+  transform: scale(1.04);
+}
+
+.mermaid-diagram {
+  display: flex;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.mermaid svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.mermaid-preview-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(245, 243, 240, 0.88);
+  backdrop-filter: blur(8px);
+}
+
+.mermaid-preview-content {
+  position: fixed;
+  inset: 24px;
+  outline: none;
+}
+
+.mermaid-preview-shell {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.92);
+  box-shadow: var(--shadow-deep);
+}
+
+.mermaid-preview-toolbar {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mermaid-preview-zoom {
+  padding: 4px 10px;
+  border: var(--border-whisper);
+  border-radius: 9999px;
+  background: rgba(255,255,255,0.9);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-warm-gray-500);
+}
+
+.mermaid-preview-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: var(--border-whisper);
+  border-radius: 9999px;
+  background: rgba(255,255,255,0.92);
+  color: var(--color-warm-gray-500);
+}
+
+.mermaid-preview-close:hover {
+  color: var(--color-notion-black);
+}
+
+.mermaid-preview-viewport {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.mermaid-preview-viewport *,
+.mermaid-preview-diagram svg,
+.mermaid-preview-diagram svg * {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.mermaid-preview-viewport.is-dragging {
+  cursor: grabbing;
+}
+
+.mermaid-preview-transform {
+  will-change: transform;
+  transform-origin: center center;
+}
+
+.mermaid-preview-diagram {
+  padding: 32px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.mermaid-preview-diagram svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: none;
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* 选中文本样式 */
+::selection {
+  background: #bfdbfe;
+  color: inherit;
+}

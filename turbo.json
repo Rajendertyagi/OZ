@@ -5,6 +5,10 @@
       "dependsOn": ["^build", "typecheck", "lint"],
       "outputs": ["dist/**"]
     },
+    "@open-zread/cli#build": {
+      "dependsOn": ["browse#build", "^build", "typecheck", "lint"],
+      "outputs": ["dist/**"]
+    },
     "dev": {
       "cache": false,
       "persistent": true
