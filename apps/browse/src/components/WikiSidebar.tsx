@@ -13,7 +13,6 @@ interface TreeItemProps {
 function TreeItem({ node, level = 0, onSelectPage }: TreeItemProps) {
   const { currentPage, expandedNodes, toggleNode } = useWiki();
   const isExpanded = expandedNodes.has(node.id);
-  const hasChildren = node.children && node.children.length > 0;
 
   const isActive = node.type === 'page' && currentPage?.slug === node.pageData?.slug;
 
@@ -25,6 +24,7 @@ function TreeItem({ node, level = 0, onSelectPage }: TreeItemProps) {
 
   // Section: 醒目标题，不可点击，不展开
   if (node.type === 'section') {
+    const children = node.children ?? [];
     return (
       <div>
         <div
@@ -33,9 +33,9 @@ function TreeItem({ node, level = 0, onSelectPage }: TreeItemProps) {
         >
           {node.title}
         </div>
-        {hasChildren && (
+        {children.length > 0 && (
           <div>
-            {node.children!.map(child => (
+            {children.map(child => (
               <TreeItem key={child.id} node={child} level={level + 1} onSelectPage={onSelectPage} />
             ))}
           </div>
@@ -46,23 +46,24 @@ function TreeItem({ node, level = 0, onSelectPage }: TreeItemProps) {
 
   // Group: 可展开的组
   if (node.type === 'group') {
+    const children = node.children ?? [];
     return (
       <div>
         <div
-          onClick={() => hasChildren && toggleNode(node.id)}
+          onClick={() => children.length > 0 && toggleNode(node.id)}
           className="flex items-center justify-between py-2 px-2 rounded-md cursor-pointer text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150"
           style={{ paddingLeft: `${(level + 1) * 12}px` }}
         >
           <span className="font-normal">{node.title}</span>
-          {hasChildren && (
+          {children.length > 0 && (
             <span className="text-gray-400">
               {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
             </span>
           )}
         </div>
-        {hasChildren && isExpanded && (
+        {children.length > 0 && isExpanded && (
           <div>
-            {node.children!.map(child => (
+            {children.map(child => (
               <TreeItem key={child.id} node={child} level={level + 1} onSelectPage={onSelectPage} />
             ))}
           </div>

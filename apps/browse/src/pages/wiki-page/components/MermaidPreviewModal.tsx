@@ -21,6 +21,7 @@ interface Size {
 
 const MIN_SCALE = 0.25;
 const MAX_SCALE = 3;
+const DEFAULT_SIZE: Size = { width: 1200, height: 800 };
 
 function clampScale(scale: number) {
   return Math.min(MAX_SCALE, Math.max(MIN_SCALE, scale));
@@ -46,20 +47,22 @@ export function MermaidPreviewModal({ open, onOpenChange, content }: MermaidPrev
   const [offset, setOffset] = useState<Point>({ x: 0, y: 0 });
   const [dragging, setDragging] = useState(false);
   const [svg, setSvg] = useState('');
-  const [svgSize, setSvgSize] = useState<Size>({ width: 1200, height: 800 });
+  const [svgSize, setSvgSize] = useState<Size>(DEFAULT_SIZE);
   const viewportRef = useRef<HTMLDivElement>(null);
   const dragPointerIdRef = useRef<number | null>(null);
   const dragStartRef = useRef<Point>({ x: 0, y: 0 });
   const offsetStartRef = useRef<Point>({ x: 0, y: 0 });
+  const initializedRef = useRef(false);
 
-  useEffect(() => {
-    if (!open) return;
+  // Reset state when modal opens - using state initializer pattern
+  const resetState = useCallback(() => {
     setScale(1);
     setOffset({ x: 0, y: 0 });
     setDragging(false);
     dragPointerIdRef.current = null;
-  }, [open]);
+  }, []);
 
+  // Render mermaid preview
   const renderPreview = useCallback(async () => {
     const uniqueId = `mermaid-preview-${crypto.randomUUID()}`;
     const { svg: renderedSvg } = await mermaid.render(uniqueId, content);
@@ -67,24 +70,38 @@ export function MermaidPreviewModal({ open, onOpenChange, content }: MermaidPrev
     setSvgSize(parseSvgSize(renderedSvg));
   }, [content]);
 
+  // Handle open state changes
   useEffect(() => {
-    if (!open) return;
-    void renderPreview();
-  }, [open, renderPreview]);
+    if (!open) {
+      initializedRef.current = false;
+      return;
+    }
 
+    // Only initialize once per open session
+    if (!initializedRef.current) {
+      initializedRef.current = true;
+      resetState();
+      renderPreview().catch(console.error);
+    }
+  }, [open, resetState, renderPreview]);
+
+  // Fit to viewport when svgSize changes
   useEffect(() => {
     if (!open || !viewportRef.current) return;
 
     const viewport = viewportRef.current;
+
     const fit = () => {
       const padding = 120;
       const availableWidth = Math.max(0, viewport.clientWidth - padding * 2);
       const availableHeight = Math.max(0, viewport.clientHeight - padding * 2);
       const fitScale = Math.min(availableWidth / svgSize.width, availableHeight / svgSize.height);
-      setScale(clampScale(Number.isFinite(fitScale) && fitScale > 0 ? fitScale : 1));
+      const newScale = clampScale(Number.isFinite(fitScale) && fitScale > 0 ? fitScale : 1);
+      setScale(newScale);
       setOffset({ x: 0, y: 0 });
     };
 
+    // Initial fit
     fit();
 
     const resizeObserver = new ResizeObserver(fit);

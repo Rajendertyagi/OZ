@@ -1,22 +1,5 @@
-import { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
-import { useInView } from 'react-intersection-observer';
-
-interface TocContextValue {
-  activeId: string | null;
-  registerHeading: (id: string) => void;
-  unregisterHeading: (id: string) => void;
-  setInView: (id: string, inView: boolean) => void;
-}
-
-const TocContext = createContext<TocContextValue | null>(null);
-
-export function useTocContext() {
-  const context = useContext(TocContext);
-  if (!context) {
-    throw new Error('useTocContext must be used within TocProvider');
-  }
-  return context;
-}
+import { useState, useCallback, useRef, useEffect } from 'react';
+import { TocContext } from './tocContext';
 
 export function TocProvider({ children }: { children: React.ReactNode }) {
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -81,24 +64,4 @@ export function TocProvider({ children }: { children: React.ReactNode }) {
       {children}
     </TocContext.Provider>
   );
-}
-
-export function useHeadingInView(id: string) {
-  const { registerHeading, unregisterHeading, setInView } = useTocContext();
-
-  const { ref, inView } = useInView({
-    threshold: 0,
-    rootMargin: '0px',
-  });
-
-  useEffect(() => {
-    registerHeading(id);
-    return () => unregisterHeading(id);
-  }, [id, registerHeading, unregisterHeading]);
-
-  useEffect(() => {
-    setInView(id, inView);
-  }, [id, inView, setInView]);
-
-  return ref;
 }

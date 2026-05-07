@@ -1,5 +1,5 @@
-import { createContext, useContext, useEffect, useRef, useCallback, useState } from "react";
-import ReactMarkdown from "react-markdown";
+import { createContext, useContext, useEffect, useRef, useCallback, useState, type ElementType, type HTMLAttributes, type ClassAttributes } from "react";
+import ReactMarkdown, { type ExtraProps } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
 import { useInView } from "react-intersection-observer";
@@ -10,7 +10,7 @@ import { Maximize2 } from "lucide-react";
 import type { CodeReference } from "@/types/wiki";
 import { useTableOfContents } from "@/hooks/useTableOfContents";
 import { parseReferences } from "@/utils/parseReferences";
-import { useTocContext } from "@/context/TocContext";
+import { useTocContext } from "@/hooks/useTocContext";
 import { MermaidPreviewModal } from "./MermaidPreviewModal";
 
 const CodeBlockContext = createContext(false);
@@ -43,7 +43,7 @@ function HeadingWrapper({
 }) {
   const { registerHeading, unregisterHeading, setInView } = useTocContext();
   const { ref, inView, entry } = useInView({ threshold: 0, rootMargin: "0px" });
-  const Tag = `h${level}` as const;
+  const HeadingTag = `h${level}` as ElementType;
 
   useEffect(() => {
     if (!id) return;
@@ -63,14 +63,14 @@ function HeadingWrapper({
         data-heading-id={id}
         data-heading-top={entry?.boundingClientRect.top ?? 0}
       >
-        <Tag id={id} className={className}>
+        <HeadingTag id={id} className={className}>
           {children}
-        </Tag>
+        </HeadingTag>
       </div>
     );
   }
 
-  return <Tag className={className}>{children}</Tag>;
+  return <HeadingTag className={className}>{children}</HeadingTag>;
 }
 
 function MermaidDiagram({
@@ -112,6 +112,72 @@ function MermaidDiagram({
   );
 }
 
+type CodeElementProps = ClassAttributes<HTMLElement> & HTMLAttributes<HTMLElement> & ExtraProps;
+
+function CodeBlock({ className, children, ...props }: CodeElementProps) {
+  const isBlockCode = useContext(CodeBlockContext);
+  const match = /language-(\w+)/.exec(className || "");
+  const language = match?.[1] ?? (isBlockCode ? "txt" : "");
+  const codeContent = String(children).replace(/\n$/, "");
+  const [activeMermaid, setActiveMermaid] = useState<string | null>(null);
+
+  if (isBlockCode && language === "mermaid") {
+    return (
+      <>
+        <MermaidDiagram
+          codeContent={codeContent}
+          onExpand={() => setActiveMermaid(codeContent)}
+        />
+        <MermaidPreviewModal
+          open={activeMermaid !== null}
+          content={activeMermaid ?? ""}
+          onOpenChange={(open) => {
+            if (!open) setActiveMermaid(null);
+          }}
+        />
+      </>
+    );
+  }
+
+  if (isBlockCode) {
+    return (
+      <div className="my-6 rounded-lg overflow-hidden bg-[#1e1e2e]">
+        <div className="px-4 py-2 bg-[#2d2d3d] border-b border-gray-700">
+          <span className="text-xs text-gray-500 uppercase">
+            {language}
+          </span>
+        </div>
+        <div className="p-4 overflow-auto">
+          <SyntaxHighlighter
+            PreTag="div"
+            language={language}
+            style={vscDarkPlus}
+            customStyle={{
+              margin: 0,
+              padding: 0,
+              background: "transparent",
+              fontSize: "14px",
+              lineHeight: "1.6",
+            }}
+            showLineNumbers
+          >
+            {codeContent}
+          </SyntaxHighlighter>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <code
+      className="px-1.5 py-0.5 bg-gray-100 rounded text-sm font-mono text-pink-600"
+      {...props}
+    >
+      {children}
+    </code>
+  );
+}
+
 export function MarkdownRenderer({
   content,
   onReferencesFound,
@@ -119,7 +185,6 @@ export function MarkdownRenderer({
 }: MarkdownRendererProps) {
   const mermaidRef = useRef<HTMLDivElement>(null);
   const headings = useTableOfContents(content);
-  const [activeMermaid, setActiveMermaid] = useState<string | null>(null);
 
   useEffect(() => {
     onReferencesFound(parseReferences(content));
@@ -143,7 +208,13 @@ export function MarkdownRenderer({
     if (mermaidRef.current) {
       const nodes = mermaidRef.current.querySelectorAll(".mermaid");
       if (nodes.length > 0) {
-        mermaid.run({ nodes });
+        // Convert NodeListOf<Element> to HTMLElement[]
+        const htmlNodes = Array.from(nodes).filter(
+          (el) => el instanceof HTMLElement
+        ) as HTMLElement[];
+        if (htmlNodes.length > 0) {
+          mermaid.run({ nodes: htmlNodes });
+        }
       }
     }
   }, []);
@@ -175,59 +246,7 @@ export function MarkdownRenderer({
               <>{children}</>
             </CodeBlockContext.Provider>
           ),
-          code({ className, children, ...props }) {
-            const isBlockCode = useContext(CodeBlockContext);
-            const match = /language-(\w+)/.exec(className || "");
-            const language = match?.[1] ?? (isBlockCode ? "txt" : "");
-            const codeContent = String(children).replace(/\n$/, "");
-
-            if (isBlockCode && language === "mermaid") {
-              return (
-                <MermaidDiagram
-                  codeContent={codeContent}
-                  onExpand={() => setActiveMermaid(codeContent)}
-                />
-              );
-            }
-
-            if (isBlockCode) {
-              return (
-                <div className="my-6 rounded-lg overflow-hidden bg-[#1e1e2e]">
-                  <div className="px-4 py-2 bg-[#2d2d3d] border-b border-gray-700">
-                    <span className="text-xs text-gray-500 uppercase">
-                      {language}
-                    </span>
-                  </div>
-                  <div className="p-4 overflow-auto">
-                    <SyntaxHighlighter
-                      PreTag="div"
-                      language={language}
-                      style={vscDarkPlus}
-                      customStyle={{
-                        margin: 0,
-                        padding: 0,
-                        background: "transparent",
-                        fontSize: "14px",
-                        lineHeight: "1.6",
-                      }}
-                      showLineNumbers
-                    >
-                      {codeContent}
-                    </SyntaxHighlighter>
-                  </div>
-                </div>
-              );
-            }
-
-            return (
-              <code
-                className="px-1.5 py-0.5 bg-gray-100 rounded text-sm font-mono text-pink-600"
-                {...props}
-              >
-                {children}
-              </code>
-            );
-          },
+          code: CodeBlock,
           h1: ({ children }) => (
             <HeadingWrapper
               level={1}
@@ -317,13 +336,6 @@ export function MarkdownRenderer({
       >
         {removeFrontmatter(content)}
       </ReactMarkdown>
-      <MermaidPreviewModal
-        open={activeMermaid !== null}
-        content={activeMermaid ?? ""}
-        onOpenChange={(open) => {
-          if (!open) setActiveMermaid(null);
-        }}
-      />
     </div>
   );
 }

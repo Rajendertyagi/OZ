@@ -1,7 +1,7 @@
 import { useRef, useEffect } from 'react';
 import * as HoverCard from '@radix-ui/react-hover-card';
 import { useWiki } from '@/hooks/useWiki';
-import { useTocContext } from '@/context/TocContext';
+import { useTocContext } from '@/hooks/useTocContext';
 import type { TocItem } from '@/hooks/useTableOfContents';
 
 interface TableOfContentsProps {

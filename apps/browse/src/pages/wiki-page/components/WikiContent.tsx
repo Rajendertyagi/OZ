@@ -7,7 +7,7 @@ import { Clock, Signal } from "lucide-react";
 import type { TocItem } from "@/hooks/useTableOfContents";
 
 export function WikiContent() {
-  const { currentPage, currentContent, references } = useWiki();
+  const { currentPage, currentContent } = useWiki();
   const [tocItems, setTocItems] = useState<TocItem[]>([]);
 
   if (!currentPage) {
