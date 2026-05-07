@@ -24,6 +24,7 @@ import ConfigRetryPage from "./views/config-retry";
 // Wiki 模块页面
 import WikiHomePage from "./views/wiki-home";
 import WikiGeneratePage from "./views/wiki-generate";
+import BrowsePage from "./views/browse";
 
 interface AppOptions {
   initialEntries: string[];
@@ -86,6 +87,8 @@ function AppContent({ initialEntries }: AppOptions) {
                       element={<WikiGeneratePage />}
                     />
                   </Route>
+                  {/* ========== Browse 模块路由 ========== */}
+                  <Route path="/browse" element={<BrowsePage />} />
                 </Route>
               </Routes>
             </ConfigProvider>

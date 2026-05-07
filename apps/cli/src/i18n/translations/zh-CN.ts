@@ -119,6 +119,7 @@ export const zhCN: TranslationKeys = {
     generate: '生成文档',
     continue: '继续生成 ({generated}/{total})',
     manage: '管理文档',
+    browse: '浏览文档',
     force: '强制重新生成',
     firstTimeConfig: '配置',
     config: '配置',
@@ -130,6 +131,15 @@ export const zhCN: TranslationKeys = {
     dividerHasCatalog: '目录已生成',
     dividerInProgress: '文档生成中 ({generated}/{total})',
     dividerComplete: '文档已生成 ({total} 篇)',
+  },
+  browse: {
+    title: 'Zread — Wiki 文档浏览',
+    starting: '启动服务器...',
+    running: '服务器已启动',
+    url: '访问地址',
+    footer: 'ESC 退出服务器 | ctrl+c 退出应用',
+    stopped: '服务器已停止',
+    noDocs: '暂无文档，请先生成',
   },
   wikiGenerate: {
     catalogTitle: '目录',

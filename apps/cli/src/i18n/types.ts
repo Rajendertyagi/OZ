@@ -121,6 +121,7 @@ export interface TranslationKeys {
     generate: string;
     continue: string;
     manage: string;
+    browse: string;
     force: string;
     firstTimeConfig: string;
     config: string;
@@ -146,6 +147,15 @@ export interface TranslationKeys {
     navigate: string;
     retry: string;
     exit: string;
+  };
+  browse: {
+    title: string;
+    starting: string;
+    running: string;
+    url: string;
+    footer: string;
+    stopped: string;
+    noDocs: string;
   };
 }
 

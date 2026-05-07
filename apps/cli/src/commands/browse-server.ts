@@ -1,8 +1,18 @@
+/**
+ * Browse Server - Wiki 文档浏览服务器
+ */
+
 import express, { Request, Response } from "express";
 import getPort from "get-port";
 import open from "open";
 import path from "path";
 import { existsSync, readFileSync } from "fs";
+import type { Server } from "http";
+
+// 打包时通过 tsup define 注入的全局常量
+declare global {
+  var IS_PACKAGED: boolean | undefined;
+}
 
 interface WikiPage {
   slug: string;
@@ -19,6 +29,14 @@ interface WikiCatalog {
   generated_at: string;
   language: string;
   pages: WikiPage[];
+}
+
+/** Browse 服务器信息 */
+export interface BrowseServerInfo {
+  port: number;
+  url: string;
+  server: Server;
+  close: () => void;
 }
 
 // Read code snippet from file
@@ -47,9 +65,9 @@ function readCodeSnippet(
   return lines.slice(start, end).join("\n");
 }
 
-export async function runBrowse(projectPath: string) {
+/** 创建 Express app（API 路由） */
+function createWikiApp(projectPath: string) {
   const app = express();
-  const isProduction = process.env.NODE_ENV === "production";
 
   // Wiki data path
   const wikiPath = path.join(projectPath, ".open-zread", "wiki");
@@ -129,10 +147,8 @@ export async function runBrowse(projectPath: string) {
   });
 
   // 3. Get source code snippet by file path
-  // Usage: /api/wiki/source?file=packages/compiler-core/src/tokenizer.ts&startLine=1&endLine=23
   app.get("/api/wiki/source", (req: Request, res: Response) => {
     try {
-      // Get file path from query
       const { file, startLine, endLine } = req.query;
 
       if (!file || typeof file !== "string") {
@@ -164,32 +180,70 @@ export async function runBrowse(projectPath: string) {
     }
   });
 
+  return { app };
+}
+
+/** 启动 Wiki 浏览服务器 */
+export async function startWikiBrowseServer(
+  projectPath: string,
+): Promise<BrowseServerInfo> {
+  const { app } = createWikiApp(projectPath);
+  const isProduction = typeof globalThis.IS_PACKAGED !== 'undefined' && globalThis.IS_PACKAGED === true;
+
   if (isProduction) {
-    // Production: static file service
-    const webDistPath = path.join(__dirname, "../browse");
+    // 生产环境：添加静态文件服务
+    const webDistPath = path.resolve(__dirname, "browse");
     const isStaticFilesAvailable = existsSync(webDistPath);
-    // Production mode: serve static files
+
     if (isStaticFilesAvailable) {
       app.use(express.static(webDistPath));
-      app.get("*", (_req: Request, res: Response) => {
+      // SPA fallback
+      app.use((req: Request, res: Response) => {
+        if (req.path.startsWith("/api/")) {
+          return res.status(404).json({ error: "API endpoint not found" });
+        }
         res.sendFile(path.join(webDistPath, "index.html"));
       });
     } else {
-      console.error("\n❌ 生产环境未找到前端打包文件");
-      console.error("请先运行: bun run build --filter=browse\n");
-      process.exit(1);
+      throw new Error(`前端打包文件未找到: ${webDistPath}`);
     }
+
+    // 获取可用端口
     const port = await getPort({ port: 3000 });
-    app.listen(port, () => {
-      console.log(`🌐 API Server running at http://localhost:${port}`);
-      console.log(`📖 Wiki API: http://localhost:${port}/api/wiki/catalog\n`);
-      open(`http://localhost:${port}`);
-    });
+    const url = `http://localhost:${port}`;
+
+    // 启动服务器
+    const server = app.listen(port);
+
+    // 打开浏览器
+    open(url);
+
+    return {
+      port,
+      url,
+      server,
+      close: () => {
+        server.close();
+      },
+    };
   } else {
-    // Development: API only mode, fixed port 5173
-    app.listen(3000, () => {
-      console.log(`\n🌐 API Server running at http://localhost:3000`);
-      console.log(`📖 Wiki API: http://localhost:3000/api/wiki/catalog\n`);
-    });
+    // 开发环境：只启动 API 服务（固定端口 3000），前端由 Vite dev server 处理
+    const port = 3000;
+    const server = app.listen(port);
+
+    return {
+      port,
+      url: `http://localhost:5173`, // 前端地址
+      server,
+      close: () => {
+        server.close();
+      },
+    };
   }
+}
+
+/** 检查是否存在 wiki.json */
+export function hasWikiCatalog(projectPath: string): boolean {
+  const wikiJsonPath = path.join(projectPath, ".open-zread", "wiki", "wiki.json");
+  return existsSync(wikiJsonPath);
 }

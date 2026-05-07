@@ -119,6 +119,7 @@ export const enUS: TranslationKeys = {
     generate: 'Generate Documentation',
     continue: 'Continue ({generated}/{total})',
     manage: 'Manage Documents',
+    browse: 'Browse Documents',
     force: 'Force Regenerate',
     firstTimeConfig: 'Configure',
     config: 'Configuration',
@@ -130,6 +131,15 @@ export const enUS: TranslationKeys = {
     dividerHasCatalog: 'Catalog generated',
     dividerInProgress: 'Generating ({generated}/{total})',
     dividerComplete: 'Docs generated ({total} pages)',
+  },
+  browse: {
+    title: 'Zread — Wiki Browser',
+    starting: 'Starting server...',
+    running: 'Server running',
+    url: 'URL',
+    footer: 'ESC Stop server | ctrl+c Exit app',
+    stopped: 'Server stopped',
+    noDocs: 'No documents yet, please generate first',
   },
   wikiGenerate: {
     catalogTitle: 'Catalog',
