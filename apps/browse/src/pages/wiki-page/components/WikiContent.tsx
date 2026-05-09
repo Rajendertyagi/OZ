@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { useWiki } from "@/hooks/useWiki";
 import { MarkdownRenderer } from "./MarkdownRenderer";
 import { TableOfContents } from "./TableOfContents";
-import { TocProvider } from "@/context/TocContext";
+import { TocProvider } from "@/context/TocContext.tsx";
 import { Clock, Signal } from "lucide-react";
 import type { TocItem } from "@/hooks/useTableOfContents";
 import { SourceCodeModal } from "@/components/SourceCodeModal";
@@ -16,11 +16,11 @@ function calculateReadingTime(content: string): number {
 
   // 移除 markdown 标记（代码块、链接等）
   const cleanContent = content
-    .replace(/```[\s\S]*?```/g, '') // 移除代码块
-    .replace(/`[^`]+`/g, '') // 移除行内代码
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // 保留链接文本
-    .replace(/[#*_~>|]/g, '') // 移除 markdown 符号
-    .replace(/\n+/g, ' ') // 换行转空格
+    .replace(/```[\s\S]*?```/g, "") // 移除代码块
+    .replace(/`[^`]+`/g, "") // 移除行内代码
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1") // 保留链接文本
+    .replace(/[#*_~>|]/g, "") // 移除 markdown 符号
+    .replace(/\n+/g, " ") // 换行转空格
     .trim();
 
   // 统计中文字符数
@@ -39,12 +39,18 @@ function calculateReadingTime(content: string): number {
 }
 
 export function WikiContent() {
-  const { currentPage, currentContent, sourceModalOpen, sourceModalRef, closeSourceModal } = useWiki();
+  const {
+    currentPage,
+    currentContent,
+    sourceModalOpen,
+    sourceModalRef,
+    closeSourceModal,
+  } = useWiki();
   const [tocItems, setTocItems] = useState<TocItem[]>([]);
 
   const readingTime = useMemo(
-    () => calculateReadingTime(currentContent || ''),
-    [currentContent]
+    () => calculateReadingTime(currentContent || ""),
+    [currentContent],
   );
 
   if (!currentPage) {
