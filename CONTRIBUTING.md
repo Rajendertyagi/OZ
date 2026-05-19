@@ -241,15 +241,15 @@ chore(deps): bump web-tree-sitter to latest
 ### PR Process
 
 1. **Fork** the repository to your GitHub account
-2. Create a feature branch from `develop`:
+2. Create a feature branch from `main`:
    ```bash
-   git checkout develop
-   git pull origin develop
+   git checkout main
+   git pull origin main
    git checkout -b feat/your-feature
    ```
 3. Develop and commit code (follow commit conventions)
 4. Ensure all checks pass
-5. Push to your Fork and open a Pull Request targeting `develop`
+5. Push to your Fork and open a Pull Request targeting `main`
 
 ### PR Title
 
