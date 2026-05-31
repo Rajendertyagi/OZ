@@ -65,21 +65,24 @@ function buildNormalSelectItems(
     });
   }
 
-  // 3. 管理文档（wiki.json 存在 + 文档已完成）
+  // 3. 浏览文档（wiki.json 存在 + 文档已完成）
   if (wikiCatalog && progress && progress.generated === progress.total) {
-    items.push({ label: t('wiki.manage'), value: 'manage' });
-    // 4. 浏览文档（文档已完成时显示）
     items.push({ label: t('wiki.browse'), value: 'browse' });
   }
 
-  // 5. 强制重新生成（wiki.json 存在）
-  if (wikiCatalog) {
-    items.push({ label: t('wiki.force'), value: 'force' });
-  }
-
-  // 6. 同步文档（wiki.json 存在）
+  // 4. 同步文档（wiki.json 存在）
   if (wikiCatalog) {
     items.push({ label: t('wiki.sync'), value: 'sync' });
+  }
+
+  // 5. 管理文档（wiki.json 存在 + 文档已完成）
+  if (wikiCatalog && progress && progress.generated === progress.total) {
+    items.push({ label: t('wiki.manage'), value: 'manage' });
+  }
+
+  // 6. 强制重新生成（wiki.json 存在）
+  if (wikiCatalog) {
+    items.push({ label: t('wiki.force'), value: 'force' });
   }
 
   // 7. 配置（常驻）

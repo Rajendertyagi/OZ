@@ -5,7 +5,7 @@
  * 底部：── 文章 X/Y ──        SelectInput 列表，行末附变更 tag
  */
 import { Box, Text, useInput } from 'ink';
-import { useMemo, useCallback } from 'react';
+import { useMemo, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router';
 import SelectInput from 'ink-select-input';
 import Divider from '../../components/Divider';
@@ -20,12 +20,33 @@ import type { SyncCatalogState, SyncPageState } from './types';
 export default function WikiSyncPage() {
   const navigate = useNavigate();
   const { t } = useI18n();
-  const { state } = useWikiSync();
+  const { state, actions } = useWikiSync();
   const { catalog, articles, syncPages } = state;
 
-  useInput((_input, key) => {
-    if (key.escape) navigate('/wiki');
+  // 选中文章 slug，用于按 r 重新生成
+  const selectedSlugRef = useRef<string | null>(null);
+
+  useInput((input, key) => {
+    if (key.escape) {
+      navigate('/wiki');
+      return;
+    }
+    if (input === 'r') {
+      // 目录失败：重新触发整个同步流程
+      if (catalog.status === 'failed') {
+        actions.retrySync();
+        return;
+      }
+      // 选中某篇文章：重新生成该文章
+      if (selectedSlugRef.current) {
+        actions.regeneratePage(selectedSlugRef.current);
+      }
+    }
   });
+
+  const handleArticleHighlight = useCallback((slug: string) => {
+    selectedSlugRef.current = slug;
+  }, []);
 
   const completedCount = articles.completedCount;
   const totalCount = syncPages.length;
@@ -40,6 +61,7 @@ export default function WikiSyncPage() {
           statusMap={articles.pages}
           completedCount={completedCount}
           totalCount={totalCount}
+          onHighlight={handleArticleHighlight}
           t={t}
         />
       )}
@@ -51,7 +73,10 @@ export default function WikiSyncPage() {
       )}
 
       <Box marginTop={1}>
-        <Text dimColor>ESC: 返回</Text>
+        <Text dimColor>
+          ↑/↓: {t('wikiGenerate.navigate')} | r: {t('wikiGenerate.retry')} |
+          ctrl+c: {t('wikiGenerate.exit')} | ESC: 返回
+        </Text>
       </Box>
     </Box>
   );
@@ -119,6 +144,7 @@ interface ArticlesListProps {
   statusMap: Record<string, SyncPageState>;
   completedCount: number;
   totalCount: number;
+  onHighlight?: (slug: string) => void;
   t: ReturnType<typeof useI18n>['t'];
 }
 
@@ -140,7 +166,7 @@ const tagLabel = (type?: string): string => {
   }
 };
 
-function ArticlesList({ pages, statusMap, completedCount, totalCount, t }: ArticlesListProps) {
+function ArticlesList({ pages, statusMap, completedCount, totalCount, onHighlight, t }: ArticlesListProps) {
   const pageMap = useMemo(
     () => new Map(pages.map((p) => [p.slug, p])),
     [pages]
@@ -230,12 +256,18 @@ function ArticlesList({ pages, statusMap, completedCount, totalCount, t }: Artic
     total: totalCount,
   });
 
+  const handleHighlight = useCallback(
+    (item: { value: string }) => onHighlight?.(item.value),
+    [onHighlight]
+  );
+
   return (
     <Box flexDirection="column">
       <Divider title={articlesTitle} />
       <Box marginTop={1}>
         <SelectInput
           items={selectItems}
+          onHighlight={handleHighlight}
           indicatorComponent={indicatorComponent}
           itemComponent={itemComponent}
         />
