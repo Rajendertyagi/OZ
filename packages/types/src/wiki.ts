@@ -12,6 +12,9 @@
  */
 export type WikiLevel = 'Beginner' | 'Intermediate' | 'Advanced';
 
+/** 同步页面变更状态 */
+export type SyncPageStatus = 'unchanged' | 'new' | 'updated' | 'archived';
+
 /**
  * WikiPage - Wiki page definition
  */
@@ -33,6 +36,8 @@ export interface WikiPage {
    * 后续生成 Wiki 内容时，会读取这些路径获取上下文
    */
   associatedFiles?: string[];
+  /** 同步状态（sync 流程中标记，非同步流程为 undefined） */
+  status?: SyncPageStatus;
 }
 
 /**
@@ -44,6 +49,13 @@ export interface WikiOutput {
   language: string;
   pages: WikiPage[];
   techStackSummary?: TechStackSummary;
+}
+
+/** 同步变更摘要（仅包含有变更的页面） */
+export interface SyncDiff {
+  newPages: WikiPage[];
+  updatedPages: WikiPage[];
+  archivedPages: WikiPage[];
 }
 
 /**

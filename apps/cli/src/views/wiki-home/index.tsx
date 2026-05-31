@@ -77,10 +77,15 @@ function buildNormalSelectItems(
     items.push({ label: t('wiki.force'), value: 'force' });
   }
 
-  // 6. 配置（常驻）
+  // 6. 同步文档（wiki.json 存在）
+  if (wikiCatalog) {
+    items.push({ label: t('wiki.sync'), value: 'sync' });
+  }
+
+  // 7. 配置（常驻）
   items.push({ label: t('wiki.config'), value: 'config' });
 
-  // 7. 退出（常驻）
+  // 8. 退出（常驻）
   items.push({ label: t('wiki.exit'), value: 'exit' });
 
   return items;
@@ -125,6 +130,9 @@ export default function WikiHomePage() {
         break;
       case 'force':
         navigate('/wiki/generate?mode=force');
+        break;
+      case 'sync':
+        navigate('/wiki/sync');
         break;
       case 'config':
         navigate('/config');

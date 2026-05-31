@@ -131,6 +131,9 @@ export const enUS: TranslationKeys = {
     dividerHasCatalog: 'Catalog generated',
     dividerInProgress: 'Generating ({generated}/{total})',
     dividerComplete: 'Docs generated ({total} pages)',
+    // Sync
+    sync: 'Sync Docs',
+    dividerHasSync: 'Wiki Change Scan',
   },
   browse: {
     title: 'Zread — Wiki Browser',

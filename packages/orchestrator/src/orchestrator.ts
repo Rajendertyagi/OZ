@@ -55,3 +55,7 @@ export async function generateWikiCatalog(
 
 // Re-export types
 export type { BlueprintOptions, BlueprintResult, CatalogEvent } from './types.js';
+
+// Sync exports
+export { syncWiki } from './wiki/sync-wiki.js';
+export type { SyncResult } from './wiki/sync-wiki.js';

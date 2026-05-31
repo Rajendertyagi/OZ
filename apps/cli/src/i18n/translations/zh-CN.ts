@@ -131,6 +131,9 @@ export const zhCN: TranslationKeys = {
     dividerHasCatalog: '目录已生成',
     dividerInProgress: '文档生成中 ({generated}/{total})',
     dividerComplete: '文档已生成 ({total} 篇)',
+    // Sync
+    sync: '同步文档',
+    dividerHasSync: 'wiki 变更扫描',
   },
   browse: {
     title: 'Zread — Wiki 文档浏览',

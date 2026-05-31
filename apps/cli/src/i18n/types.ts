@@ -133,6 +133,9 @@ export interface TranslationKeys {
     dividerHasCatalog: string;
     dividerInProgress: string;
     dividerComplete: string;
+    // Sync
+    sync: string;
+    dividerHasSync: string;
   };
   wikiGenerate: {
     catalogTitle: string;

@@ -11,6 +11,10 @@ export { generateWikiCatalog } from './orchestrator.js'
 export { generateWikiContent } from './wiki/generate-wiki.js'
 export type { WikiResult, ProgressState, PageResult, GenerateWikiOptions, ArticleEventPayload } from './wiki/types.js'
 
+// Phase 3: Wiki Sync
+export { syncWiki } from './wiki/sync-wiki.js'
+export type { SyncResult } from './wiki/sync-wiki.js'
+
 // Types
 export * from './types.js'
 

@@ -245,3 +245,100 @@ export const ValidateBlueprintTool: ToolDefinition = {
     }
   }
 }
+
+/**
+ * Generate Sync Blueprint Tool
+ *
+ * Generates wiki.json with sync status flags on each page.
+ * Unlike GenerateBlueprintTool, this is used during sync flow and
+ * expects each page to include a `status` field.
+ */
+export const GenerateSyncBlueprintTool: ToolDefinition = {
+  name: 'generate_sync_blueprint',
+  description: '生成同步后的 Wiki 蓝图 JSON，每页需包含 status 字段（unchanged/new/updated/archived）。',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      pages: {
+        type: 'array',
+        description: 'Wiki 页面列表（每页必须包含 status 字段）',
+        items: {
+          type: 'object',
+          properties: {
+            slug: { type: 'string' },
+            title: { type: 'string' },
+            file: { type: 'string' },
+            section: { type: 'string' },
+            group: { type: 'string' },
+            level: { type: 'string' },
+            associatedFiles: {
+              type: 'array',
+              items: { type: 'string' }
+            },
+            status: {
+              type: 'string',
+              enum: ['unchanged', 'new', 'updated', 'archived'],
+              description: '同步状态标记'
+            }
+          },
+          required: ['slug', 'title', 'file', 'section', 'status']
+        }
+      },
+      techStackSummary: {
+        type: 'object',
+        description: '技术栈摘要（可选，沿用旧值或重新生成）'
+      }
+    },
+    required: ['pages']
+  },
+  isReadOnly: () => false,
+  isConcurrencySafe: () => false,
+  isEnabled: () => true,
+  async prompt() {
+    return 'Generate and save synced wiki blueprint JSON file.'
+  },
+  async call(input: ToolInputParams, _context: ToolContext): Promise<ToolResult> {
+    try {
+      const pages = input.pages as unknown as (WikiPage & { status?: string })[]
+      const techStackSummary = input.techStackSummary as unknown as TechStackSummary | undefined
+
+      if (!pages || !Array.isArray(pages) || pages.length === 0) {
+        return {
+          type: 'tool_result',
+          tool_use_id: '',
+          content: '错误: pages 数组不能为空',
+          is_error: true
+        }
+      }
+
+      // Separate pages by status
+      const statusCounts: Record<string, number> = { unchanged: 0, new: 0, updated: 0, archived: 0 }
+      for (const p of pages) {
+        const s = p.status || 'unchanged'
+        statusCounts[s] = (statusCounts[s] || 0) + 1
+      }
+
+      const config = await loadConfig()
+      const outputPath = await generateWikiJson(pages as WikiPage[], config, techStackSummary)
+
+      return {
+        type: 'tool_result',
+        tool_use_id: '',
+        content: `同步蓝图已生成: ${outputPath}\n\n变更统计:\n` +
+          `- 新增: ${statusCounts.new} 篇\n` +
+          `- 更新: ${statusCounts.updated} 篇\n` +
+          `- 归档: ${statusCounts.archived} 篇\n` +
+          `- 未变更: ${statusCounts.unchanged} 篇\n` +
+          `总计: ${pages.length} 篇`
+      }
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err)
+      return {
+        type: 'tool_result',
+        tool_use_id: '',
+        content: `生成同步蓝图失败: ${message}`,
+        is_error: true
+      }
+    }
+  }
+}
