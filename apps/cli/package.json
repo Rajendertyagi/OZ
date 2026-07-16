@@ -45,7 +45,6 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@open-zread/agent-sdk": "workspace:*",
     "commander": "^14.0.3",
     "express": "^5.1.0",
     "fullscreen-ink": "^0.1.0",
@@ -61,6 +60,7 @@
     "zustand": "^5.0.12"
   },
   "devDependencies": {
+    "@open-zread/agent-sdk": "workspace:*",
     "@open-zread/orchestrator": "workspace:*",
     "@open-zread/repo-analyzer": "workspace:*",
     "@open-zread/types": "workspace:*",
