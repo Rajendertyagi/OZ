@@ -1,0 +1,12 @@
+language: en
+doc_language: en
+
+llm:
+  provider: openrouter
+  model: qwen/qwen3-coder:free
+  api_key: ${OPENROUTER_API_KEY}
+  base_url: https://openrouter.ai/api/v1
+
+concurrency:
+  max_concurrent: 3
+  max_retries: 3

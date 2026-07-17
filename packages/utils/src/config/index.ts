@@ -1,12 +1,26 @@
 import { readFile, writeFile } from 'fs/promises';
 import { existsSync, readFileSync } from 'fs';
-import { join, dirname } from 'path';
+import { join, dirname, resolve } from 'path';
 import { homedir } from 'os';
 import { parse, stringify } from 'yaml';
 import type { AppConfig } from '@open-zread/types';
 import { ensureDir } from '../file-io';
 
-const CONFIG_PATH = join(homedir(), '.zread', 'config.yaml');
+// Portable mode: prefer config next to the launcher (or repo root) so the
+// whole tool can live in one folder without touching the user's home dir.
+// Falls back to ~/.zread/config.yaml for normal installs.
+function resolveConfigPath(): string {
+  const candidates = [
+    join(process.cwd(), 'config', 'config.yaml'),
+    join(dirname(process.execPath), 'config', 'config.yaml'),
+  ];
+  for (const c of candidates) {
+    if (existsSync(c)) return c;
+  }
+  return join(homedir(), '.zread', 'config.yaml');
+}
+
+const CONFIG_PATH = resolveConfigPath();
 
 /**
  * 默认配置 - 首次使用时的初始配置
