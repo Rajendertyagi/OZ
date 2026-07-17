@@ -52,18 +52,11 @@ jobs:
           # Runtime node_modules (dereference workspace symlinks so it's self-contained)
           cp -rL node_modules "$BUNDLE/app/node_modules"
 
-          # Config: inject real API key from Actions secret (repo config has placeholder)
-          if [ -z "${OPENROUTER_API_KEY}" ]; then
-            echo "WARNING: OPENROUTER_API_KEY secret not set; bundling placeholder config."
-            cp config/config.yaml "$BUNDLE/config/config.yaml"
-          else
-            sed "s|\${OPENROUTER_API_KEY}|${OPENROUTER_API_KEY}|g" config/config.yaml > "$BUNDLE/config/config.yaml"
-          fi
+          # Config: bundle placeholder; user drops in their real config/config.yaml locally
+          cp config/config.yaml "$BUNDLE/config/config.yaml"
 
           # Launcher (set by workflow below)
           echo "BUNDLE=$BUNDLE" >> "$GITHUB_ENV"
-        env:
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
 
       - name: Download standalone node.exe (Windows x64)
         run: |
